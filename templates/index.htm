@@ -25,21 +25,21 @@
         <i class="bi bi-pc"></i> 我在平时的开发过程中，总会遇到一些没见过的问题，就需要 Google 检索技术资料，然后逐渐理解和解决问题。把问题解决的过程和思路记录下来，后面再查阅时会很方便，而且对后来的学习者也是有帮助的。我也会尝试记录一些实践过的编程技巧，不定期记录更新。
       </div>
 
-      <div class="h4 ps-2"><i class="bi bi-file-slides"></i> Keynotes:</div>
-      <div class="list-group">
-        {{range $idx, $element := .Keynotes}}
-          <a href="/keynotes/{{.Name}}" class="list-group-item list-group-item-action {{if eq $idx 0}}active{{end}} text-capitalize" aria-current="true">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">{{.Title}}</h5>
-              <small>{{.Ago}}</small>
+      <div class="container ">
+        <div class="h4"><i class="bi bi-file-slides"></i> Keynotes:</div>
+        <div class="row mt-3 text-center">
+          {{range .SubFolders}}
+            <div class="col col-4 col-md-3 col-lg-2">
+              <div>
+              <i class="bi bi-folder-fill display-1 text-warning"></i></div>
+              <div>{{.Name}}</div>
             </div>
-            <p class="mb-1">{{.Desc}}</p>
-          </a>
-        {{end}}
+          {{end}}
+        </div>
       </div>
     </div>
 
-    <div class="container sticky-bottom">
+    <div class="container fixed-bottom">
       <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
         <div class="col-md-4 d-flex align-items-center">
           <span class="mb-3 mb-md-0 text-muted">&copy; 2023 huoyijie.cn</span>

@@ -13,9 +13,9 @@ import (
 //go:embed templates/* templates/blocks/*
 var tmplFS embed.FS
 
-func homeRender(keynotes []keynote_t) func(*gin.Context) {
+func homeRender(rootFolder *folder_t) func(*gin.Context) {
 	return func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.htm", gin.H{"Keynotes": keynotes})
+		c.HTML(http.StatusOK, "index.htm", rootFolder)
 	}
 }
 
@@ -45,7 +45,7 @@ func startServer(port int, host, keynotesDir string) {
 
 	router.StaticFS("public", http.Dir(keynotesDir))
 
-	router.GET("/", homeRender(loadKeynotes(keynotesDir)))
+	router.GET("/", homeRender(loadKeynotes(keynotesDir, "/")))
 
 	router.GET("keynotes/:name", keynoteRender())
 
