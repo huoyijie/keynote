@@ -32,6 +32,10 @@
             <div><i class="bi bi-folder-fill display-1 text-warning"></i></div>
             <div>{[{folder.Name}]}</div>
           </div>
+          <div class="col col-4 col-md-3 col-lg-2" v-for="keynote in keynotes" @click="openKeynote" :data-keynote="keynote.Name">
+            <div><i class="bi bi-file-earmark-slides display-1"></i></div>
+            <div>{[{keynote.Name}]}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -66,6 +70,13 @@
           } else {
             return []
           }
+        },
+        keynotes() {
+          if (this.currentFolder && this.currentFolder.Keynotes) {
+            return this.currentFolder.Keynotes
+          } else {
+            return []
+          }
         }
       },
       methods: {
@@ -77,6 +88,10 @@
               return
             }
           }
+        },
+        openKeynote(e) {
+          let keynote = e.currentTarget.dataset.keynote
+          console.log(keynote)
         }
       },
       created() {
