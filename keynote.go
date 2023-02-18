@@ -20,24 +20,52 @@ func homeRender() func(*gin.Context) {
 	}
 }
 
-func foldersApi(keynotesDir string) func(*gin.Context) {
+func foldersApi(rootFolder *folder_t) func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"RootFolder": loadKeynotes(keynotesDir, "/", []string{"/"}),
+			"RootFolder": rootFolder,
 		})
 	}
 }
 
-func noRouteHandler() func(*gin.Context) {
+func noRouteHandler(rootFolder *folder_t) func(*gin.Context) {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
 		if keynoteName, found := strings.CutPrefix(path, "/keynotes/"); found {
-			c.HTML(http.StatusOK, "keynote.htm", gin.H{
-				"KeynoteName": keynoteName,
-			})
-		} else {
-			c.Redirect(http.StatusFound, "/")
+			breadcrumb := strings.Split(keynoteName, "/")
+			if len(breadcrumb) == 1 {
+				for _, kn := range rootFolder.Keynotes {
+					if kn.Name == breadcrumb[0] {
+						c.HTML(http.StatusOK, "keynote.htm", gin.H{
+							"KeynoteName": keynoteName,
+						})
+						return
+					}
+				}
+			} else {
+				p := rootFolder.SubFolders
+				for i := 0; i < len(breadcrumb)-1; i++ {
+					for _, f := range p {
+						if f.Name == breadcrumb[i] {
+							if i == len(breadcrumb)-2 {
+								for _, kn := range f.Keynotes {
+									if kn.Name == breadcrumb[len(breadcrumb)-1] {
+										c.HTML(http.StatusOK, "keynote.htm", gin.H{
+											"KeynoteName": keynoteName,
+										})
+										return
+									}
+								}
+							} else {
+								p = f.SubFolders
+								break
+							}
+						}
+					}
+				}
+			}
 		}
+		c.AbortWithStatus(http.StatusNotFound)
 	}
 }
 
@@ -49,9 +77,10 @@ func startServer(port int, host, keynotesDir string) {
 
 	router.StaticFS("public", http.Dir(keynotesDir))
 
+	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})
 	router.GET("/", homeRender())
-	router.GET("/folders", foldersApi(keynotesDir))
-	router.NoRoute(noRouteHandler())
+	router.GET("/folders", foldersApi(rootFolder))
+	router.NoRoute(noRouteHandler(rootFolder))
 
 	router.SetTrustedProxies(nil)
 	router.Run(fmt.Sprintf("%s:%d", host, port))

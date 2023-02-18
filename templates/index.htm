@@ -120,18 +120,18 @@
           let idx = e.currentTarget.dataset.breadcrumb
           if (idx == 0) {
             this.currentFolder = this.RootFolder
-          } else {
-            let p = this.RootFolder.SubFolders
-            for (let i = 1; i <= idx; i++) {
-              for (let f of p) {
-                if (f.Name = this.breadcrumb[i]) {
-                  if (i == idx) {
-                    this.currentFolder = f
-                    return
-                  } else {
-                    p = f
-                    break
-                  }
+            return
+          }
+          let p = this.RootFolder.SubFolders
+          for (let i = 1; i <= idx; i++) {
+            for (let f of p) {
+              if (f.Name == this.breadcrumb[i]) {
+                if (i == idx) {
+                  this.currentFolder = f
+                  return
+                } else {
+                  p = f.SubFolders
+                  break
                 }
               }
             }
