@@ -56,13 +56,14 @@
   createApp({
       data() {
         return {
-            RootFolder: null
+            RootFolder: null,
+            currentFolder: null
         }
       },
       computed: {
         folders() {
-          if (this.RootFolder) {
-            return this.RootFolder.SubFolders
+          if (this.currentFolder) {
+            return this.currentFolder.SubFolders
           } else {
             return []
           }
@@ -74,6 +75,7 @@
         axios.get('/folders')
           .then(function (res) {
             that.RootFolder = res.data.RootFolder
+            that.currentFolder = that.RootFolder
           })
           .catch(function (error) {
             window.location.reload()
