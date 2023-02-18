@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +41,7 @@ func keynoteRender() func(*gin.Context) {
 		}
 
 		c.HTML(http.StatusOK, "keynote.htm", gin.H{
-			"KeynoteName": query.KeynoteName,
+			"KeynoteName": strings.ReplaceAll(query.KeynoteName, ",", "/")[1:],
 		})
 	}
 }
@@ -55,7 +56,7 @@ func startServer(port int, host, keynotesDir string) {
 
 	router.GET("/", homeRender())
 	router.GET("/folders", foldersApi(keynotesDir))
-	router.GET("keynotes/:name", keynoteRender())
+	router.GET("/keynotes/:name", keynoteRender())
 
 	router.SetTrustedProxies(nil)
 	router.Run(fmt.Sprintf("%s:%d", host, port))
