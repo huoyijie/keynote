@@ -14,10 +14,10 @@ type folder_t struct {
 	path string
 
 	// public fields
-	Name       string
-	Breadcrumb []string
-	SubFolders []*folder_t
-	Keynotes   []*keynote_t
+	Name, Title string
+	Breadcrumb  []string
+	SubFolders  []*folder_t
+	Keynotes    []*keynote_t
 }
 
 type keynote_t struct {
@@ -29,6 +29,7 @@ func loadKeynotes(keynotesDir, folderName string, breadcrumb []string) (folder *
 	folder = &folder_t{
 		path:       keynotesDir,
 		Name:       folderName,
+		Title:      strings.ReplaceAll(folderName, "-", " "),
 		Breadcrumb: breadcrumb,
 	}
 
