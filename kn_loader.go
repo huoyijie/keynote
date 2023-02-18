@@ -10,7 +10,11 @@ import (
 )
 
 type folder_t struct {
-	Path, Name string
+	// private fields
+	path string
+
+	// public fields
+	Name       string
 	SubFolders []*folder_t
 	Keynotes   []*keynote_t
 }
@@ -22,7 +26,7 @@ type keynote_t struct {
 
 func loadKeynotes(keynotesDir, folderName string) (folder *folder_t) {
 	folder = &folder_t{
-		Path: keynotesDir,
+		path: keynotesDir,
 		Name: folderName,
 	}
 

@@ -13,9 +13,17 @@ import (
 //go:embed templates/* templates/blocks/*
 var tmplFS embed.FS
 
-func homeRender(rootFolder *folder_t) func(*gin.Context) {
+func homeRender() func(*gin.Context) {
 	return func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.htm", rootFolder)
+		c.HTML(http.StatusOK, "index.htm", gin.H{})
+	}
+}
+
+func foldersApi(keynotesDir string) func(*gin.Context) {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"RootFolder": loadKeynotes(keynotesDir, "/"),
+		})
 	}
 }
 
@@ -45,8 +53,8 @@ func startServer(port int, host, keynotesDir string) {
 
 	router.StaticFS("public", http.Dir(keynotesDir))
 
-	router.GET("/", homeRender(loadKeynotes(keynotesDir, "/")))
-
+	router.GET("/", homeRender())
+	router.GET("/folders", foldersApi(keynotesDir))
 	router.GET("keynotes/:name", keynoteRender())
 
 	router.SetTrustedProxies(nil)
@@ -63,7 +71,7 @@ func main() {
 	flag.StringVar(&host, "H", "0.0.0.0", "the host that server listen on")
 	flag.IntVar(&port, "p", 8000, "the port that server listen on")
 	flag.BoolVar(&g, "g", false, "generate static site")
-	flag.StringVar(&keynotesDir, "d", "./keynotes", "where the keynotes store")
+	flag.StringVar(&keynotesDir, "d", "keynotes", "where the keynotes store")
 	flag.Parse()
 
 	if g {
