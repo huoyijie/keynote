@@ -22,7 +22,7 @@ func homeRender() func(*gin.Context) {
 func foldersApi(keynotesDir string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"RootFolder": loadKeynotes(keynotesDir, "/"),
+			"RootFolder": loadKeynotes(keynotesDir, "/", []string{"/"}),
 		})
 	}
 }

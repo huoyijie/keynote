@@ -15,6 +15,7 @@ type folder_t struct {
 
 	// public fields
 	Name       string
+	Breadcrumb []string
 	SubFolders []*folder_t
 	Keynotes   []*keynote_t
 }
@@ -24,16 +25,21 @@ type keynote_t struct {
 	Ctime       time.Time
 }
 
-func loadKeynotes(keynotesDir, folderName string) (folder *folder_t) {
+func loadKeynotes(keynotesDir, folderName string, breadcrumb []string) (folder *folder_t) {
 	folder = &folder_t{
-		path: keynotesDir,
-		Name: folderName,
+		path:       keynotesDir,
+		Name:       folderName,
+		Breadcrumb: breadcrumb,
 	}
 
 	entries, _ := os.ReadDir(keynotesDir)
 	for _, v := range entries {
 		if v.IsDir() {
-			subFolder := loadKeynotes(filepath.Join(keynotesDir, v.Name()), v.Name())
+			subBreadcrumb := make([]string, len(folder.Breadcrumb)+1)
+			copy(subBreadcrumb, folder.Breadcrumb)
+			subBreadcrumb[len(subBreadcrumb)-1] = v.Name()
+
+			subFolder := loadKeynotes(filepath.Join(keynotesDir, v.Name()), v.Name(), subBreadcrumb)
 			folder.SubFolders = append(folder.SubFolders, subFolder)
 			continue
 		}

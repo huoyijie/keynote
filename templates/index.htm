@@ -27,14 +27,34 @@
 
       <div class="container ">
         <div class="h4"><i class="bi bi-file-slides"></i> Keynotes:</div>
+
+        <div class="container">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <template v-for="(folder, i) in breadcrumb">
+                <li v-if="i < breadcrumb.length-1" class="breadcrumb-item">
+                  <a href="#" @click="navToFolder" :data-breadcrumb="i">
+                    <i v-if="i == 0" class="bi bi-house-fill"></i>
+                    <template v-else>{[{folder}]}</template>
+                  </a>
+                </li>
+                <li v-else class="breadcrumb-item active" aria-current="page">
+                  <i v-if="i == 0" class="bi bi-house-fill"></i>
+                  <template v-else>{[{folder}]}</template>
+                </li>
+              </template>
+            </ol>
+          </nav>
+        </div>
+
         <div class="row mt-3 text-center">
-          <div class="col col-4 col-md-3 col-lg-2" v-for="folder in folders" @click="openFolder" :data-folder="folder.Name">
-            <div><i class="bi bi-folder-fill display-1 text-warning"></i></div>
-            <div>{[{folder.Name}]}</div>
+          <div class="col col-4 col-md-3 col-lg-2" v-for="folder in folders">
+            <div><i class="bi bi-folder-fill display-1 text-warning" @click="openFolder" :data-folder="folder.Name"></i></div>
+            <div><span @click="openFolder" :data-folder="folder.Name">{[{folder.Name}]}</span></div>
           </div>
-          <div class="col col-4 col-md-3 col-lg-2" v-for="keynote in keynotes" @click="openKeynote" :data-keynote="keynote.Name">
-            <div><i class="bi bi-file-earmark-slides display-1"></i></div>
-            <div>{[{keynote.Name}]}</div>
+          <div class="col col-4 col-md-3 col-lg-2" v-for="keynote in keynotes">
+            <div><i class="bi bi-file-earmark-slides display-1" @click="openKeynote" :data-keynote="keynote.Name"></i></div>
+            <div><span @click="openKeynote" :data-keynote="keynote.Name">{[{keynote.Name}]}</span></div>
           </div>
         </div>
       </div>
@@ -77,6 +97,13 @@
           } else {
             return []
           }
+        },
+        breadcrumb() {
+          if (this.currentFolder) {
+            return this.currentFolder.Breadcrumb
+          } else {
+            return []
+          }
         }
       },
       methods: {
@@ -86,6 +113,27 @@
             if (f.Name == folder) {
               this.currentFolder = f
               return
+            }
+          }
+        },
+        navToFolder(e) {
+          let idx = e.currentTarget.dataset.breadcrumb
+          if (idx == 0) {
+            this.currentFolder = this.RootFolder
+          } else {
+            let p = this.RootFolder.SubFolders
+            for (let i = 1; i <= idx; i++) {
+              for (let f of p) {
+                if (f.Name = this.breadcrumb[i]) {
+                  if (i == idx) {
+                    this.currentFolder = f
+                    return
+                  } else {
+                    p = f
+                    break
+                  }
+                }
+              }
             }
           }
         },
