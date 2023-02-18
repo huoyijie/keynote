@@ -28,21 +28,16 @@ func foldersApi(keynotesDir string) func(*gin.Context) {
 	}
 }
 
-type get_keynote_t struct {
-	KeynoteName string `uri:"name" binding:"required"`
-}
-
-func keynoteRender() func(*gin.Context) {
+func noRouteHandler() func(*gin.Context) {
 	return func(c *gin.Context) {
-		var query get_keynote_t
-		if err := c.BindUri(&query); err != nil {
+		path := c.Request.URL.Path
+		if keynoteName, found := strings.CutPrefix(path, "/keynotes/"); found {
+			c.HTML(http.StatusOK, "keynote.htm", gin.H{
+				"KeynoteName": keynoteName,
+			})
+		} else {
 			c.Redirect(http.StatusFound, "/")
-			return
 		}
-
-		c.HTML(http.StatusOK, "keynote.htm", gin.H{
-			"KeynoteName": strings.ReplaceAll(query.KeynoteName, ",", "/")[1:],
-		})
 	}
 }
 
@@ -56,7 +51,7 @@ func startServer(port int, host, keynotesDir string) {
 
 	router.GET("/", homeRender())
 	router.GET("/folders", foldersApi(keynotesDir))
-	router.GET("/keynotes/:name", keynoteRender())
+	router.NoRoute(noRouteHandler())
 
 	router.SetTrustedProxies(nil)
 	router.Run(fmt.Sprintf("%s:%d", host, port))
