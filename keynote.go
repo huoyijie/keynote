@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -87,6 +88,31 @@ func newTemplate() (tmpl *template.Template) {
 	return
 }
 
+func genKeynoteHtml(tmpl *template.Template, folder *folder_t, path string) {
+	_ = os.Mkdir(path, os.ModePerm)
+
+	for _, kn := range folder.Keynotes {
+		mdFile := kn.Name + ".md"
+		data, _ := os.ReadFile(filepath.Join(folder.path, mdFile))
+		mdPath := filepath.Join(path, mdFile)
+		os.WriteFile(mdPath, data, os.ModePerm)
+
+		knHtmlPath := filepath.Join(path, kn.Name+".html")
+		knHtml, _ := os.Create(knHtmlPath)
+
+		urlPath := strings.Join(folder.Breadcrumb[1:], "/")
+		keynoteName, _ := url.JoinPath(urlPath, kn.Name)
+		tmpl.ExecuteTemplate(knHtml, "keynote.htm", gin.H{
+			"KeynoteDir":  "keynotes",
+			"KeynoteName": keynoteName,
+		})
+	}
+
+	for _, f := range folder.SubFolders {
+		genKeynoteHtml(tmpl, f, filepath.Join(path, f.Name))
+	}
+}
+
 func genStaticSite(keynotesDir, outputDir string) {
 	if _, err := os.Stat(keynotesDir); os.IsNotExist(err) {
 		fatalErr(err)
@@ -107,8 +133,8 @@ func genStaticSite(keynotesDir, outputDir string) {
 
 	tmpl := newTemplate()
 
-	indexHtm, _ := os.Create(indexPath)
-	tmpl.ExecuteTemplate(indexHtm, "index.htm", gin.H{})
+	indexHtml, _ := os.Create(indexPath)
+	tmpl.ExecuteTemplate(indexHtml, "index.htm", gin.H{})
 
 	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})
 
@@ -120,6 +146,8 @@ func genStaticSite(keynotesDir, outputDir string) {
 		err = os.WriteFile(foldersJsonPath, data, os.ModePerm)
 		fatalErr(err)
 	}
+
+	genKeynoteHtml(tmpl, rootFolder, keynotesPath)
 }
 
 func startServer(port int, host, keynotesDir string) {
