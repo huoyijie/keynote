@@ -3,14 +3,14 @@
         <nav class="navbar navbar-dark bg-dark navbar-expand-lg bg-body-tertiary">
           <div class="container-fluid">
             <span></span>
-            <a class="navbar-brand d-block position-absolute ms-0" href="https://huoyijie.cn"><img src="https://cdn.huoyijie.cn/ab/static/huoyijie-cn-white.png" class="img-fluid rounded"></a>
+            <a class="navbar-brand d-block position-absolute ms-0" href="{{.Site.Link}}"><img src="{{.Site.Logo}}" class="img-fluid rounded"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
-                  <h2 class="text-white mt-3">SHOW YOU THE CODE</h2>
+                  <h2 class="text-white mt-3">{{.Site.Title}}</h2>
                 </li>
               </ul>
             </div>
@@ -19,7 +19,7 @@
 
         <div class="mx-auto mt-4 px-2 overflow-auto" style="max-height: 80vh">
           <div class="alert alert-info" role="alert">
-            <i class="bi bi-pc"></i> 我在平时的开发过程中，总会遇到一些没见过的问题，就需要 Google 检索技术资料，然后逐渐理解和解决问题。把问题解决的过程和思路记录下来，后面再查阅时会很方便，而且对后来的学习者也是有帮助的。我也会尝试记录一些实践过的编程技巧，不定期记录更新。
+            <i class="bi bi-pc"></i> {{.Site.Summry}}
           </div>
 
           <div class="container ">
@@ -60,7 +60,7 @@
         <div class="container fixed-bottom">
           <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
             <div class="col-md-4 d-flex align-items-center">
-              <span class="mb-3 mb-md-0 text-muted">&copy; 2023 huoyijie.cn</span>
+              <span class="mb-3 mb-md-0 text-muted">&copy; 2023 {{.Site.Copyright}}</span>
             </div>
 
             <div class="nav col-md-4 text-muted">
