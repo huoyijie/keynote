@@ -176,7 +176,7 @@ func main() {
 	)
 	flag.StringVar(&host, "H", "0.0.0.0", "the host that server listen on")
 	flag.IntVar(&port, "p", 8000, "the port that server listen on")
-	flag.StringVar(&keynotesDir, "d", "keynotes", "where the keynotes store")
+	flag.StringVar(&keynotesDir, "d", "src", "where the keynote sources store")
 	flag.BoolVar(&g, "g", false, "generate static site")
 	flag.StringVar(&outputDir, "o", ".", "where the generated files store")
 	flag.Parse()
