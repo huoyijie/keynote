@@ -88,7 +88,7 @@ func newTemplate() (tmpl *template.Template) {
 	return
 }
 
-func genKeynoteHtml(tmpl *template.Template, folder *folder_t, path string) {
+func genKeynoteHtml(tmpl *template.Template, folder *folder_t, path, basePath string) {
 	_ = os.Mkdir(path, os.ModePerm)
 
 	for _, kn := range folder.Keynotes {
@@ -103,17 +103,17 @@ func genKeynoteHtml(tmpl *template.Template, folder *folder_t, path string) {
 		urlPath := strings.Join(folder.Breadcrumb[1:], "/")
 		keynoteName, _ := url.JoinPath(urlPath, kn.Name)
 		tmpl.ExecuteTemplate(knHtml, "keynote.htm", gin.H{
-			"KeynoteDir":  "keynotes",
+			"KeynoteDir":  filepath.Join(basePath, "keynotes")[1:],
 			"KeynoteName": keynoteName,
 		})
 	}
 
 	for _, f := range folder.SubFolders {
-		genKeynoteHtml(tmpl, f, filepath.Join(path, f.Name))
+		genKeynoteHtml(tmpl, f, filepath.Join(path, f.Name), basePath)
 	}
 }
 
-func genStaticSite(keynotesDir, outputDir string) {
+func genStaticSite(keynotesDir, outputDir, basePath string) {
 	if _, err := os.Stat(keynotesDir); os.IsNotExist(err) {
 		fatalErr(err)
 	}
@@ -147,7 +147,7 @@ func genStaticSite(keynotesDir, outputDir string) {
 		fatalErr(err)
 	}
 
-	genKeynoteHtml(tmpl, rootFolder, keynotesPath)
+	genKeynoteHtml(tmpl, rootFolder, keynotesPath, basePath)
 }
 
 func startServer(port int, host, keynotesDir string) {
@@ -168,21 +168,21 @@ func startServer(port int, host, keynotesDir string) {
 
 func main() {
 	var (
-		host        string
-		port        int
-		g           bool
-		keynotesDir string
-		outputDir   string
+		port                             int
+		host                             string
+		g                                bool
+		keynotesDir, outputDir, basePath string
 	)
 	flag.StringVar(&host, "H", "0.0.0.0", "the host that server listen on")
 	flag.IntVar(&port, "p", 8000, "the port that server listen on")
 	flag.StringVar(&keynotesDir, "d", "src", "where the keynote sources store")
 	flag.BoolVar(&g, "g", false, "generate static site")
 	flag.StringVar(&outputDir, "o", ".", "where the generated files store")
+	flag.StringVar(&basePath, "b", "/", "base path of the static site")
 	flag.Parse()
 
 	if g {
-		genStaticSite(keynotesDir, outputDir)
+		genStaticSite(keynotesDir, outputDir, basePath)
 	} else {
 		startServer(port, host, keynotesDir)
 	}
