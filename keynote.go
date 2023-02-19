@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +22,7 @@ var tmplFS embed.FS
 
 func homeRender(site *SiteConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.htm", gin.H{"Site": site})
+		c.HTML(http.StatusOK, "index.htm", gin.H{"Site": site, "Year": time.Now().Year()})
 	}
 }
 
@@ -136,7 +137,7 @@ func genStaticSite(site *SiteConfig, keynotesDir, outputDir, basePath string) {
 	tmpl := newTemplate()
 
 	indexHtml, _ := os.Create(indexPath)
-	tmpl.ExecuteTemplate(indexHtml, "index.htm", gin.H{"Site": site})
+	tmpl.ExecuteTemplate(indexHtml, "index.htm", gin.H{"Site": site, "Year": time.Now().Year()})
 
 	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})
 
