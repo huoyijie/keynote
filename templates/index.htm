@@ -145,7 +145,7 @@
       },
       created() {
         let that = this
-        axios.get('/folders')
+        axios.get('/folders.json')
           .then(function (res) {
             that.RootFolder = res.data.RootFolder
             that.currentFolder = that.RootFolder
