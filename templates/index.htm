@@ -1,159 +1,157 @@
 {{ template "head-bootstrap.htm" . }}
-
-<div id="app" class="container bg-light px-0 vh-100">
-    <nav class="navbar navbar-dark bg-dark navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <span></span>
-        <a class="navbar-brand d-block position-absolute ms-0" href="https://huoyijie.cn"><img src="https://cdn.huoyijie.cn/ab/static/huoyijie-cn-white.png" class="img-fluid rounded"></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-              <h2 class="text-white mt-3">SHOW YOU THE CODE</h2>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <div class="mx-auto mt-4 px-2 overflow-auto" style="max-height: 80vh">
-      <div class="alert alert-info" role="alert">
-        <i class="bi bi-pc"></i> 我在平时的开发过程中，总会遇到一些没见过的问题，就需要 Google 检索技术资料，然后逐渐理解和解决问题。把问题解决的过程和思路记录下来，后面再查阅时会很方便，而且对后来的学习者也是有帮助的。我也会尝试记录一些实践过的编程技巧，不定期记录更新。
-      </div>
-
-      <div class="container ">
-        <div class="h4"><i class="bi bi-file-slides"></i> Keynotes:</div>
-
-        <div class="container">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <template v-for="(folder, i) in breadcrumb">
-                <li v-if="i < breadcrumb.length-1" class="breadcrumb-item">
-                  <a href="#" @click="navToFolder" :data-breadcrumb="i">
-                    <i v-if="i == 0" class="bi bi-house-fill"></i>
-                    <template v-else>{[{folder}]}</template>
-                  </a>
+    <div id="app" class="container bg-light px-0 vh-100">
+        <nav class="navbar navbar-dark bg-dark navbar-expand-lg bg-body-tertiary">
+          <div class="container-fluid">
+            <span></span>
+            <a class="navbar-brand d-block position-absolute ms-0" href="https://huoyijie.cn"><img src="https://cdn.huoyijie.cn/ab/static/huoyijie-cn-white.png" class="img-fluid rounded"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                  <h2 class="text-white mt-3">SHOW YOU THE CODE</h2>
                 </li>
-                <li v-else class="breadcrumb-item active" aria-current="page">
-                  <i v-if="i == 0" class="bi bi-house-fill"></i>
-                  <template v-else>{[{folder}]}</template>
-                </li>
-              </template>
-            </ol>
-          </nav>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+        <div class="mx-auto mt-4 px-2 overflow-auto" style="max-height: 80vh">
+          <div class="alert alert-info" role="alert">
+            <i class="bi bi-pc"></i> 我在平时的开发过程中，总会遇到一些没见过的问题，就需要 Google 检索技术资料，然后逐渐理解和解决问题。把问题解决的过程和思路记录下来，后面再查阅时会很方便，而且对后来的学习者也是有帮助的。我也会尝试记录一些实践过的编程技巧，不定期记录更新。
+          </div>
+
+          <div class="container ">
+            <div class="h4"><i class="bi bi-file-slides"></i> Keynotes:</div>
+
+            <div class="container">
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <template v-for="(folder, i) in breadcrumb">
+                    <li v-if="i < breadcrumb.length-1" class="breadcrumb-item">
+                      <a href="#" @click="navToFolder" :data-breadcrumb="i">
+                        <i v-if="i == 0" class="bi bi-house-fill"></i>
+                        <template v-else>{[{folder}]}</template>
+                      </a>
+                    </li>
+                    <li v-else class="breadcrumb-item active" aria-current="page">
+                      <i v-if="i == 0" class="bi bi-house-fill"></i>
+                      <template v-else>{[{folder}]}</template>
+                    </li>
+                  </template>
+                </ol>
+              </nav>
+            </div>
+
+            <div class="row text-center">
+              <div v-for="folder in folders" class="col col-4 col-md-3 col-lg-2 mb-3">
+                <div><i class="bi bi-folder-fill display-1 text-warning" role="button" @click="openFolder" :data-folder="folder.Name"></i></div>
+                <div><span role="button" @click="openFolder" :data-folder="folder.Name">{[{folder.Title}]}</span></div>
+              </div>
+              <div v-for="keynote in keynotes" class="col col-4 col-md-3 col-lg-2 mb-3">
+                <div><i class="bi bi-file-earmark-slides display-1" role="button" @click="openKeynote" :data-keynote="keynote.Name"></i></div>
+                <div><span role="button" @click="openKeynote" :data-keynote="keynote.Name">{[{keynote.Title}]}</span></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="row text-center">
-          <div v-for="folder in folders" class="col col-4 col-md-3 col-lg-2 mb-3">
-            <div><i class="bi bi-folder-fill display-1 text-warning" role="button" @click="openFolder" :data-folder="folder.Name"></i></div>
-            <div><span role="button" @click="openFolder" :data-folder="folder.Name">{[{folder.Title}]}</span></div>
-          </div>
-          <div v-for="keynote in keynotes" class="col col-4 col-md-3 col-lg-2 mb-3">
-            <div><i class="bi bi-file-earmark-slides display-1" role="button" @click="openKeynote" :data-keynote="keynote.Name"></i></div>
-            <div><span role="button" @click="openKeynote" :data-keynote="keynote.Name">{[{keynote.Title}]}</span></div>
-          </div>
+        <div class="container fixed-bottom">
+          <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-md-4 d-flex align-items-center">
+              <span class="mb-3 mb-md-0 text-muted">&copy; 2023 huoyijie.cn</span>
+            </div>
+
+            <div class="nav col-md-4 text-muted">
+              <p>Powered by Bootstrap, Vue, Reveal.js, Gin, <a href="https://github.com/huoyijie/keynote" target="_blank">Keynote</a></p>
+            </div>
+          </footer>
         </div>
-      </div>
     </div>
 
-    <div class="container fixed-bottom">
-      <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-        <div class="col-md-4 d-flex align-items-center">
-          <span class="mb-3 mb-md-0 text-muted">&copy; 2023 huoyijie.cn</span>
-        </div>
-
-        <div class="nav col-md-4 text-muted">
-          <p>Powered by Bootstrap, Vue, Reveal.js, Gin, <a href="https://github.com/huoyijie/keynote" target="_blank">Keynote</a></p>
-        </div>
-      </footer>
-    </div>
-</div>
-
-<script>
-  'use strict'
-  const { createApp } = Vue
-  createApp({
-      data() {
-        return {
-            RootFolder: null,
-            currentFolder: null
-        }
-      },
-      computed: {
-        folders() {
-          if (this.currentFolder && this.currentFolder.SubFolders) {
-            return this.currentFolder.SubFolders
-          } else {
-            return []
+    <script>
+      'use strict'
+      const { createApp } = Vue
+      createApp({
+        data() {
+          return {
+              RootFolder: null,
+              currentFolder: null
           }
         },
-        keynotes() {
-          if (this.currentFolder && this.currentFolder.Keynotes) {
-            return this.currentFolder.Keynotes
-          } else {
-            return []
-          }
-        },
-        breadcrumb() {
-          if (this.currentFolder) {
-            return this.currentFolder.Breadcrumb
-          } else {
-            return []
-          }
-        }
-      },
-      methods: {
-        openFolder(e) {
-          let folder = e.currentTarget.dataset.folder
-          for (let f of this.folders) {
-            if (f.Name == folder) {
-              this.currentFolder = f
-              return
+        computed: {
+          folders() {
+            if (this.currentFolder && this.currentFolder.SubFolders) {
+              return this.currentFolder.SubFolders
+            } else {
+              return []
+            }
+          },
+          keynotes() {
+            if (this.currentFolder && this.currentFolder.Keynotes) {
+              return this.currentFolder.Keynotes
+            } else {
+              return []
+            }
+          },
+          breadcrumb() {
+            if (this.currentFolder) {
+              return this.currentFolder.Breadcrumb
+            } else {
+              return []
             }
           }
         },
-        navToFolder(e) {
-          let idx = e.currentTarget.dataset.breadcrumb
-          if (idx == 0) {
-            this.currentFolder = this.RootFolder
-            return
-          }
-          let p = this.RootFolder.SubFolders
-          for (let i = 1; i <= idx; i++) {
-            for (let f of p) {
-              if (f.Name == this.breadcrumb[i]) {
-                if (i == idx) {
-                  this.currentFolder = f
-                  return
-                } else {
-                  p = f.SubFolders
-                  break
+        methods: {
+          openFolder(e) {
+            let folder = e.currentTarget.dataset.folder
+            for (let f of this.folders) {
+              if (f.Name == folder) {
+                this.currentFolder = f
+                return
+              }
+            }
+          },
+          navToFolder(e) {
+            let idx = e.currentTarget.dataset.breadcrumb
+            if (idx == 0) {
+              this.currentFolder = this.RootFolder
+              return
+            }
+            let p = this.RootFolder.SubFolders
+            for (let i = 1; i <= idx; i++) {
+              for (let f of p) {
+                if (f.Name == this.breadcrumb[i]) {
+                  if (i == idx) {
+                    this.currentFolder = f
+                    return
+                  } else {
+                    p = f.SubFolders
+                    break
+                  }
                 }
               }
             }
+          },
+          openKeynote(e) {
+            let keynote = e.currentTarget.dataset.keynote
+            let path = this.breadcrumb.join('/').slice(1)
+            window.location.href = '/keynotes' + path + `/${keynote}`
           }
         },
-        openKeynote(e) {
-          let keynote = e.currentTarget.dataset.keynote
-          let path = this.breadcrumb.join('/').slice(1)
-          window.location.href = '/keynotes' + path + `/${keynote}`
-        }
-      },
-      created() {
-        let that = this
-        axios.get('/folders.json')
-          .then(function (res) {
-            that.RootFolder = res.data.RootFolder
-            that.currentFolder = that.RootFolder
-          })
-          .catch(function (error) {
-            window.location.reload()
-          })
-      },
-      delimiters: ["{[{", "}]}"],
-  }).mount('#app')
-</script>
-
+        created() {
+          let that = this
+          axios.get('/folders.json')
+            .then(function (res) {
+              that.RootFolder = res.data.RootFolder
+              that.currentFolder = that.RootFolder
+            })
+            .catch(function (error) {
+              window.location.reload()
+            })
+        },
+        delimiters: ["{[{", "}]}"],
+      }).mount('#app')
+    </script>
 {{ template "foot-bootstrap.htm" . }}
