@@ -1,4 +1,3 @@
-    <script src="https://cdn.jsdelivr.net/npm/docsify@4.13.0/lib/docsify.min.js"></script>
     <script>
       window.$docsify = {
         name: '{{.KeynoteTitle}}',
@@ -6,6 +5,24 @@
         homepage: '{{.KeynoteName}}.md',
         el: '#app',
         subMaxLevel: 3,
+        copyCode: {
+          buttonText: {
+            '/zh-cn/': '点击复制',
+            '/'      : 'Copy'
+          },
+          errorText: {
+            '/zh-cn/': '错误',
+            '/'      : 'Error'
+          },
+          successText: {
+            '/zh-cn/': '已复制',
+            '/'      : 'Copied'
+          }
+        }
       }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-go.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
 {{ template "foot.htm" . }}
