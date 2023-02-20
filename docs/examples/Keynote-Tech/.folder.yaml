@@ -2,4 +2,5 @@ keynote:
   - "it-was-written-with-revealjs.md"
 docsify:
   - "this-is-docsify.md"
-gitbook: []
+gitbook:
+  - "hello-gitbook"
