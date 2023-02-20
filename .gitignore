@@ -16,3 +16,7 @@
 
 .vscode/
 __debug_bin
+package.json
+package-lock.json
+node_modules/
+read/

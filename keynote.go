@@ -358,7 +358,7 @@ func startServer(port int, host, keynotesDir string, site *Site) {
 	router.SetHTMLTemplate(newTemplate())
 
 	for _, kind := range FileKinds() {
-		router.StaticFS(fmt.Sprintf("%ss", kind), http.Dir(keynotesDir))
+		router.StaticFS(fmt.Sprintf("%ss", kind), gin.Dir(keynotesDir, false))
 	}
 
 	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})

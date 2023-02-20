@@ -138,7 +138,11 @@
             let keynote = e.currentTarget.dataset.keynote
             let kind = e.currentTarget.dataset.kind
             let path = this.breadcrumb.join('/').slice(1)
-            window.location.href = `${kind}s` + path + `/${keynote}`
+            let url = `${kind}s` + path + `/${keynote}`
+            if (kind === 'gitbook') {
+              url += '/read/'
+            }
+            window.location.href = url
           },
           fileIcon(kind) {
             if (kind === 'keynote') {
