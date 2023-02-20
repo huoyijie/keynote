@@ -6,6 +6,9 @@ func main() {
 }
 ```
 
+安装 node v12.22.12
+安装 gitbook-cli
+
 ```bash
 $ cd Keynote-Tech/
 
