@@ -125,6 +125,11 @@ func loadKeynotes(keynotesDir, folderName string, breadcrumb []string) (folder *
 	folderProps := loadFolderProps(filepath.Join(keynotesDir, ".folder.yaml"))
 	entries, _ := os.ReadDir(keynotesDir)
 	for _, v := range entries {
+		// ignore hidden file or directory
+		if strings.HasPrefix(v.Name(), ".") {
+			continue
+		}
+
 		fileKind, ok := folderProps.getFileKind(v.Name())
 
 		if !v.IsDir() {
