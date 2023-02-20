@@ -22,27 +22,27 @@
             <i class="bi bi-pc"></i> {{.Site.Summry}}
           </div>
 
-          <div class="container ">
-            <div class="h4"><i class="bi bi-file-slides"></i> Keynotes:</div>
-
-            <div class="container">
-              <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                  <template v-for="(folder, i) in breadcrumb">
-                    <li v-if="i < breadcrumb.length-1" class="breadcrumb-item">
-                      <a href="#" @click="navToFolder" :data-breadcrumb="i">
-                        <i v-if="i == 0" class="bi bi-house-fill"></i>
-                        <template v-else>{[{folder}]}</template>
-                      </a>
-                    </li>
-                    <li v-else class="breadcrumb-item active" aria-current="page">
-                      <i v-if="i == 0" class="bi bi-house-fill"></i>
+          <div class="container">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <template v-for="(folder, i) in breadcrumb">
+                  <li v-if="i < breadcrumb.length-1" class="breadcrumb-item">
+                    <a href="#" @click="navToFolder" :data-breadcrumb="i">
+                      <template v-if="i == 0">
+                        <i class="bi bi-file-slides"></i> Keynotes
+                      </template>
                       <template v-else>{[{folder}]}</template>
-                    </li>
-                  </template>
-                </ol>
-              </nav>
-            </div>
+                    </a>
+                  </li>
+                  <li v-else class="breadcrumb-item active" aria-current="page">
+                    <template v-if="i == 0">
+                        <i class="bi bi-file-slides"></i> Keynotes
+                    </template>
+                    <template v-else>{[{folder}]}</template>
+                  </li>
+                </template>
+              </ol>
+            </nav>
 
             <div class="row text-center">
               <div v-for="folder in folders" class="col col-4 col-md-3 col-lg-2 mb-3">
@@ -50,8 +50,8 @@
                 <div><span role="button" @click="openFolder" :data-folder="folder.Name">{[{folder.Title}]}</span></div>
               </div>
               <div v-for="keynote in keynotes" class="col col-4 col-md-3 col-lg-2 mb-3">
-                <div><i class="bi bi-file-earmark-slides display-1" role="button" @click="openKeynote" :data-keynote="keynote.Name"></i></div>
-                <div><span role="button" @click="openKeynote" :data-keynote="keynote.Name">{[{keynote.Title}]}</span></div>
+                <div><i :class="['bi', fileIcon(keynote.Kind), 'display-1', fileIconColor(keynote.Kind)]" role="button" @click="openKeynote" :data-keynote="keynote.Name" :data-kind="keynote.Kind"></i></div>
+                <div><span role="button" @click="openKeynote" :data-keynote="keynote.Name" :data-kind="keynote.Kind">{[{keynote.Title}]}</span></div>
               </div>
             </div>
           </div>
@@ -89,8 +89,8 @@
             }
           },
           keynotes() {
-            if (this.currentFolder && this.currentFolder.Keynotes) {
-              return this.currentFolder.Keynotes
+            if (this.currentFolder && this.currentFolder.Files) {
+              return this.currentFolder.Files
             } else {
               return []
             }
@@ -136,8 +136,27 @@
           },
           openKeynote(e) {
             let keynote = e.currentTarget.dataset.keynote
+            let kind = e.currentTarget.dataset.kind
             let path = this.breadcrumb.join('/').slice(1)
-            window.location.href = 'keynotes' + path + `/${keynote}`
+            window.location.href = `${kind}s` + path + `/${keynote}`
+          },
+          fileIcon(kind) {
+            if (kind === 'keynote') {
+              return 'bi-file-earmark-slides'
+            } else if (kind === 'docsify') {
+              return 'bi-file-earmark-richtext'
+            } else if (kind === 'gitbook') {
+              return 'bi-file-earmark-text'
+            }
+          },
+          fileIconColor(kind) {
+            if (kind === 'keynote') {
+              return 'text-info'
+            } else if (kind === 'docsify') {
+              return 'text-success'
+            } else if (kind === 'gitbook') {
+              return 'text-secondary'
+            }
           }
         },
         created() {
@@ -151,7 +170,7 @@
               window.location.reload()
             })
         },
-        delimiters: ["{[{", "}]}"],
+        delimiters: ['{[{', '}]}'],
       }).mount('#app')
     </script>
 {{ template "foot-bootstrap.htm" . }}

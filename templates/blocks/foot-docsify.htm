@@ -1,10 +1,10 @@
     <script src="https://cdn.jsdelivr.net/npm/docsify@4.13.0/lib/docsify.min.js"></script>
     <script>
       window.$docsify = {
-        name: '{{.Title}}',
-        homepage: '{{.Name}}.md',
+        name: '{{.KeynoteTitle}}',
+        basePath: '/{{.KeynoteDir}}',
+        homepage: '{{.KeynoteName}}.md',
         el: '#app',
-        loadSidebar: true,
         subMaxLevel: 3,
       }
     </script>
