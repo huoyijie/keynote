@@ -24,5 +24,5 @@ $ rm package.json package-lock.json
 
 $ cp ../../this-is-a-gitbook/book.json ./
 
-$ gitbook build ./ read
+$ gitbook build ./ latest
 ```
