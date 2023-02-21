@@ -215,14 +215,16 @@ func loadKeynotes(keynotesDir, folderName string, breadcrumb []string) (folder *
 //go:embed templates/* templates/blocks/*
 var tmplFS embed.FS
 
-func homeRender(site *Site) func(*gin.Context) {
+func homeRender(ch chan<- chan<- []any) func(*gin.Context) {
 	return func(c *gin.Context) {
+		site, _ := getData(ch)
 		c.HTML(http.StatusOK, "index.htm", gin.H{"Site": site, "Year": time.Now().Year()})
 	}
 }
 
-func foldersApi(rootFolder *Folder) func(*gin.Context) {
+func foldersApi(ch chan<- chan<- []any) func(*gin.Context) {
 	return func(c *gin.Context) {
+		_, rootFolder := getData(ch)
 		c.JSON(http.StatusOK, gin.H{
 			"RootFolder": rootFolder,
 		})
@@ -238,8 +240,9 @@ func keynoteRender(c *gin.Context, tmplHtm string, site *Site, keynoteDir, keyno
 	})
 }
 
-func noRouteHandler(rootFolder *Folder, site *Site) func(*gin.Context) {
+func noRouteHandler(ch chan<- chan<- []any) func(*gin.Context) {
 	return func(c *gin.Context) {
+		site, rootFolder := getData(ch)
 		path := c.Request.URL.Path
 		kinds := FileKinds()
 		for _, kind := range kinds {
@@ -248,7 +251,7 @@ func noRouteHandler(rootFolder *Folder, site *Site) func(*gin.Context) {
 				if len(breadcrumb) == 1 {
 					for _, kn := range rootFolder.Files {
 						if kn.Name == breadcrumb[0] {
-							keynoteRender(c, fmt.Sprintf("%s.htm", kind), site, fmt.Sprintf("%ss", kind), keynoteName, kn.Title)
+							keynoteRender(c, fmt.Sprintf("%s.htm", kind), &site, fmt.Sprintf("%ss", kind), keynoteName, kn.Title)
 							return
 						}
 					}
@@ -260,7 +263,7 @@ func noRouteHandler(rootFolder *Folder, site *Site) func(*gin.Context) {
 								if i == len(breadcrumb)-2 {
 									for _, kn := range f.Files {
 										if kn.Name == breadcrumb[len(breadcrumb)-1] {
-											keynoteRender(c, fmt.Sprintf("%s.htm", kind), site, fmt.Sprintf("%ss", kind), keynoteName, kn.Title)
+											keynoteRender(c, fmt.Sprintf("%s.htm", kind), &site, fmt.Sprintf("%ss", kind), keynoteName, kn.Title)
 											return
 										}
 									}
@@ -315,7 +318,7 @@ func genKeynoteHtml(tmpl *template.Template, site *Site, folder *Folder, path, b
 	}
 }
 
-func genStaticSite(site *Site, keynotesDir, outputDir, basePath string) {
+func genStaticSite(conf, keynotesDir, outputDir, basePath string) {
 	if _, err := os.Stat(keynotesDir); os.IsNotExist(err) {
 		fatalErr(err)
 	}
@@ -335,6 +338,7 @@ func genStaticSite(site *Site, keynotesDir, outputDir, basePath string) {
 
 	tmpl := newTemplate()
 
+	site := loadSite(conf)
 	indexHtml, _ := os.Create(indexPath)
 	tmpl.ExecuteTemplate(indexHtml, "index.htm", gin.H{"Site": site, "Year": time.Now().Year()})
 
@@ -352,7 +356,10 @@ func genStaticSite(site *Site, keynotesDir, outputDir, basePath string) {
 	genKeynoteHtml(tmpl, site, rootFolder, keynotesPath, basePath)
 }
 
-func startServer(port int, host, keynotesDir string, site *Site) {
+func startServer(port int, host, conf, keynotesDir string) {
+	ch := make(chan chan<- []any, 1024)
+	go loadData(conf, keynotesDir, ch)
+
 	router := gin.Default()
 
 	router.SetHTMLTemplate(newTemplate())
@@ -361,35 +368,76 @@ func startServer(port int, host, keynotesDir string, site *Site) {
 		router.StaticFS(fmt.Sprintf("%ss", kind), gin.Dir(keynotesDir, false))
 	}
 
-	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})
-	router.GET("/", homeRender(site))
-	router.GET("/folders.json", foldersApi(rootFolder))
-	router.NoRoute(noRouteHandler(rootFolder, site))
+	router.GET("/", homeRender(ch))
+	router.GET("/folders.json", foldersApi(ch))
+	router.NoRoute(noRouteHandler(ch))
 
 	router.SetTrustedProxies(nil)
 	router.Run(fmt.Sprintf("%s:%d", host, port))
 }
 
+func getData(ch chan<- chan<- []any) (site Site, rootFolder Folder) {
+	recv := make(chan []any, 1)
+	ch <- recv
+	arr := <-recv
+	site = arr[0].(Site)
+	rootFolder = arr[1].(Folder)
+	return
+}
+
+func loadData(conf, keynotesDir string, ch <-chan chan<- []any) {
+	ticker := time.NewTicker(3 * time.Second)
+
+	if production {
+		ticker.Stop()
+	} else {
+		defer ticker.Stop()
+	}
+
+	var (
+		site       *Site
+		rootFolder *Folder
+	)
+
+	load := func() {
+		site = loadSite(conf)
+		rootFolder = loadKeynotes(keynotesDir, "/", []string{"/"})
+	}
+
+	load()
+
+	for {
+		select {
+		case res := <-ch:
+			res <- []any{*site, *rootFolder}
+		case <-ticker.C:
+			load()
+		}
+	}
+}
+
+var production bool
+
 func main() {
 	var (
 		port                    int
 		host, conf, keynotesDir string
-		g                       bool
+		gen                     bool
 		outputDir, basePath     string
 	)
 	flag.IntVar(&port, "p", 8000, "the port that server listen on")
 	flag.StringVar(&host, "H", "0.0.0.0", "the host that server listen on")
 	flag.StringVar(&conf, "c", "site.yaml", "the config of the site")
 	flag.StringVar(&keynotesDir, "d", "src", "where the keynote sources store")
-	flag.BoolVar(&g, "g", false, "generate static site")
+	flag.BoolVar(&production, "pro", false, "production mode (without auto reload)")
+	flag.BoolVar(&gen, "g", false, "generate static site")
 	flag.StringVar(&outputDir, "o", ".", "where the generated files store")
 	flag.StringVar(&basePath, "b", "/", "base path of the static site")
 	flag.Parse()
 
-	site := loadSite(conf)
-	if g {
-		genStaticSite(site, keynotesDir, outputDir, basePath)
+	if gen {
+		genStaticSite(conf, keynotesDir, outputDir, basePath)
 	} else {
-		startServer(port, host, keynotesDir, site)
+		startServer(port, host, conf, keynotesDir)
 	}
 }
