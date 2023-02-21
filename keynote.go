@@ -444,14 +444,14 @@ func main() {
 		gen                     bool
 		outputDir, basePath     string
 	)
-	flag.IntVar(&port, "p", 8000, "the port that server listen on")
-	flag.StringVar(&host, "H", "0.0.0.0", "the host that server listen on")
-	flag.StringVar(&conf, "c", "site.yaml", "the config of the site")
-	flag.StringVar(&keynotesDir, "d", "src", "where the keynote sources store")
+	flag.IntVar(&port, "port", 8000, "the port that server listen on")
+	flag.StringVar(&host, "host", "0.0.0.0", "the host that server listen on")
+	flag.StringVar(&conf, "conf", "keynote.yaml", "the config of the site")
+	flag.StringVar(&keynotesDir, "src", "src", "where the keynote sources store")
 	flag.BoolVar(&production, "pro", false, "production mode (without auto reload)")
-	flag.BoolVar(&gen, "g", false, "generate static site")
-	flag.StringVar(&outputDir, "o", ".", "where the generated files store")
-	flag.StringVar(&basePath, "b", "/", "base path of the static site")
+	flag.BoolVar(&gen, "gen", false, "generate static site")
+	flag.StringVar(&outputDir, "output", ".", "where the generated files store")
+	flag.StringVar(&basePath, "base", "/", "base path of the static site")
 	flag.Parse()
 
 	if gen {
