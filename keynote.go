@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	cp "github.com/otiai10/copy"
 	"gopkg.in/yaml.v3"
 )
 
@@ -30,8 +31,7 @@ func loadSite(conf string) (site *Site) {
 
 	site = &Site{}
 
-	err = yaml.Unmarshal(data, site)
-	fatalErr(err)
+	fatalErr(yaml.Unmarshal(data, site))
 	return
 }
 
@@ -91,8 +91,7 @@ func loadFolderProps(conf string) (props *FolderProps) {
 
 	props = &FolderProps{}
 
-	err = yaml.Unmarshal(data, props)
-	fatalErr(err)
+	fatalErr(yaml.Unmarshal(data, props))
 	return
 }
 
@@ -292,29 +291,44 @@ func newTemplate() (tmpl *template.Template) {
 	return
 }
 
-func genKeynoteHtml(tmpl *template.Template, site *Site, folder *Folder, path, basePath string) {
-	_ = os.Mkdir(path, os.ModePerm)
+func genKeynoteHtml(kind FileKind, tmpl *template.Template, site *Site, folder *Folder, path, basePath string) {
+	os.Mkdir(path, os.ModePerm)
 
 	for _, kn := range folder.Files {
-		mdFile := kn.Name + ".md"
-		data, _ := os.ReadFile(filepath.Join(folder.path, mdFile))
-		mdPath := filepath.Join(path, mdFile)
-		os.WriteFile(mdPath, data, os.ModePerm)
+		// Process one kind of file at a time.
+		if kn.Kind != kind {
+			continue
+		}
+		if kind.IsKeynote() || kind.IsDocsify() {
+			// copy original `.md` files for keynote and docsify
+			mdFile := kn.Name + ".md"
+			data, _ := os.ReadFile(filepath.Join(folder.path, mdFile))
+			mdPath := filepath.Join(path, mdFile)
+			os.WriteFile(mdPath, data, os.ModePerm)
 
-		knHtmlPath := filepath.Join(path, kn.Name+".html")
-		knHtml, _ := os.Create(knHtmlPath)
+			// generate `.html` file
+			knHtmlPath := filepath.Join(path, kn.Name+".html")
+			knHtml, _ := os.Create(knHtmlPath)
 
-		urlPath := strings.Join(folder.Breadcrumb[1:], "/")
-		keynoteName, _ := url.JoinPath(urlPath, kn.Name)
-		tmpl.ExecuteTemplate(knHtml, "keynote.htm", gin.H{
-			"KeynoteDir":  filepath.Join(basePath, "keynotes")[1:],
-			"KeynoteName": keynoteName,
-			"Site":        site,
-		})
+			urlPath := strings.Join(folder.Breadcrumb[1:], "/")
+			keynoteName, _ := url.JoinPath(urlPath, kn.Name)
+			tmpl.ExecuteTemplate(knHtml, fmt.Sprintf("%s.htm", kind), gin.H{
+				"KeynoteDir":   filepath.Join(basePath, fmt.Sprintf("%ss", kind))[1:],
+				"KeynoteName":  keynoteName,
+				"KeynoteTitle": kn.Title,
+				"Site":         site,
+			})
+		} else if kind.IsGitbook() {
+			// copy latest dir for gitbook
+			latestDir := filepath.Join(folder.path, kn.Name, "latest")
+			gitbookDir := filepath.Join(path, kn.Name, "latest")
+			os.MkdirAll(gitbookDir, os.ModePerm)
+			fatalErr(cp.Copy(latestDir, gitbookDir))
+		}
 	}
 
 	for _, f := range folder.SubFolders {
-		genKeynoteHtml(tmpl, site, f, filepath.Join(path, f.Name), basePath)
+		genKeynoteHtml(kind, tmpl, site, f, filepath.Join(path, f.Name), basePath)
 	}
 }
 
@@ -327,33 +341,38 @@ func genStaticSite(conf, keynotesDir, outputDir, basePath string) {
 		fatalErr(err)
 	}
 
+	tmpl := newTemplate()
+	// load data
+	site := loadSite(conf)
+	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})
+
+	// clear old index.html
 	indexPath := filepath.Join(outputDir, "index.html")
 	os.Remove(indexPath)
-
-	foldersJsonPath := filepath.Join(outputDir, "folders.json")
-	os.Remove(foldersJsonPath)
-
-	keynotesPath := filepath.Join(outputDir, "keynotes")
-	os.RemoveAll(keynotesPath)
-
-	tmpl := newTemplate()
-
-	site := loadSite(conf)
+	// re-generate index.html
 	indexHtml, _ := os.Create(indexPath)
 	tmpl.ExecuteTemplate(indexHtml, "index.htm", gin.H{"Site": site, "Year": time.Now().Year()})
 
-	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})
-
+	// clear old folders.json
+	foldersJsonPath := filepath.Join(outputDir, "folders.json")
+	os.Remove(foldersJsonPath)
+	// re-generate folders.json
 	if data, err := json.Marshal(gin.H{
 		"RootFolder": rootFolder,
 	}); err != nil {
 		fatalErr(err)
 	} else {
-		err = os.WriteFile(foldersJsonPath, data, os.ModePerm)
-		fatalErr(err)
+		fatalErr(os.WriteFile(foldersJsonPath, data, os.ModePerm))
 	}
 
-	genKeynoteHtml(tmpl, site, rootFolder, keynotesPath, basePath)
+	// generate keynotes
+	for _, kind := range FileKinds() {
+		// clear old keynotes
+		keynotesPath := filepath.Join(outputDir, fmt.Sprintf("%ss", kind))
+		os.RemoveAll(keynotesPath)
+		// re-generate keynotes
+		genKeynoteHtml(kind, tmpl, site, rootFolder, keynotesPath, basePath)
+	}
 }
 
 func startServer(port int, host, conf, keynotesDir string) {
