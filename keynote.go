@@ -60,7 +60,7 @@ func FileKinds() []FileKind {
 }
 
 type FolderProps struct {
-	Keynote, Docsify, Gitbook []string
+	Keynote, Docsify, Gitbook, Ignore []string
 }
 
 func (props *FolderProps) getFileKind(file string) (fileKind FileKind, found bool) {
@@ -123,7 +123,15 @@ func loadKeynotes(keynotesDir, folderName string, breadcrumb []string) (folder *
 
 	folderProps := loadFolderProps(filepath.Join(keynotesDir, ".folder.yaml"))
 	entries, _ := os.ReadDir(keynotesDir)
+outer:
 	for _, v := range entries {
+		// check ignore list
+		for _, ignore := range folderProps.Ignore {
+			if v.Name() == ignore {
+				continue outer
+			}
+		}
+
 		// ignore hidden file or directory
 		if strings.HasPrefix(v.Name(), ".") {
 			continue
