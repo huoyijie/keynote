@@ -34,30 +34,30 @@
 
         <div class="mx-auto mt-4 px-2 overflow-auto" style="max-height: 80vh">
           <div class="alert alert-info" role="alert">
-            <i class="bi bi-pc"></i> 我在平时的开发过程中，总会遇到一些没见过的问题，就需要 Google 检索技术资料，然后逐渐理解和解决问题。把问题解决的过程和思路记录下来，后面再查阅时会很方便，而且对后来的学习者也是有帮助的。我也会尝试记录一些实践过的编程技巧，不定期记录更新。
+            <i class="bi bi-pc"></i> 我在平时的开发过程中，总会遇到一些没见过的问题，就需要检索技术资料，然后逐渐理解和解决问题。把问题解决的过程和思路记录下来，后面再查阅时会方便一些，对后来的学习者也有些帮助。另外，我也会尝试记录一些我实践过的编程内容，不定期更新。如果你觉得有收获，欢迎随时收藏、推荐、交流和转载（请注明原始链接）。
           </div>
 
-          <div class="container ">
-            <div class="h4"><i class="bi bi-file-slides"></i> Keynotes:</div>
-
-            <div class="container">
-              <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                  <template v-for="(folder, i) in breadcrumb">
-                    <li v-if="i < breadcrumb.length-1" class="breadcrumb-item">
-                      <a href="#" @click="navToFolder" :data-breadcrumb="i">
-                        <i v-if="i == 0" class="bi bi-house-fill"></i>
-                        <template v-else>{[{folder}]}</template>
-                      </a>
-                    </li>
-                    <li v-else class="breadcrumb-item active" aria-current="page">
-                      <i v-if="i == 0" class="bi bi-house-fill"></i>
+          <div class="container">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <template v-for="(folder, i) in breadcrumb">
+                  <li v-if="i < breadcrumb.length-1" class="breadcrumb-item">
+                    <a href="#" @click="navToFolder" :data-breadcrumb="i">
+                      <template v-if="i == 0">
+                        <i class="bi bi-file-slides"></i> Keynotes
+                      </template>
                       <template v-else>{[{folder}]}</template>
-                    </li>
-                  </template>
-                </ol>
-              </nav>
-            </div>
+                    </a>
+                  </li>
+                  <li v-else class="breadcrumb-item active" aria-current="page">
+                    <template v-if="i == 0">
+                        <i class="bi bi-file-slides"></i> Keynotes
+                    </template>
+                    <template v-else>{[{folder}]}</template>
+                  </li>
+                </template>
+              </ol>
+            </nav>
 
             <div class="row text-center">
               <div v-for="folder in folders" class="col col-4 col-md-3 col-lg-2 mb-3">
@@ -65,8 +65,8 @@
                 <div><span role="button" @click="openFolder" :data-folder="folder.Name">{[{folder.Title}]}</span></div>
               </div>
               <div v-for="keynote in keynotes" class="col col-4 col-md-3 col-lg-2 mb-3">
-                <div><i class="bi bi-file-earmark-slides display-1" role="button" @click="openKeynote" :data-keynote="keynote.Name"></i></div>
-                <div><span role="button" @click="openKeynote" :data-keynote="keynote.Name">{[{keynote.Title}]}</span></div>
+                <div><i :class="['bi', fileIcon(keynote.Kind), 'display-1', fileIconColor(keynote.Kind)]" role="button" @click="openKeynote" :data-keynote="keynote.Name" :data-kind="keynote.Kind"></i></div>
+                <div><span role="button" @click="openKeynote" :data-keynote="keynote.Name" :data-kind="keynote.Kind">{[{keynote.Title}]}</span></div>
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@
             </div>
 
             <div class="nav col-md-4 text-muted">
-              <p>Powered by Bootstrap, Vue, Reveal.js, Gin, <a href="https://github.com/huoyijie/keynote" target="_blank">Keynote</a></p>
+              <p>Powered by Bootstrap, Vue, Reveal.js, Gitbook, Docsify, Gin, <a href="https://github.com/huoyijie/keynote" target="_blank">Keynote</a></p>
             </div>
           </footer>
         </div>
@@ -104,8 +104,8 @@
             }
           },
           keynotes() {
-            if (this.currentFolder && this.currentFolder.Keynotes) {
-              return this.currentFolder.Keynotes
+            if (this.currentFolder && this.currentFolder.Files) {
+              return this.currentFolder.Files
             } else {
               return []
             }
@@ -151,8 +151,31 @@
           },
           openKeynote(e) {
             let keynote = e.currentTarget.dataset.keynote
+            let kind = e.currentTarget.dataset.kind
             let path = this.breadcrumb.join('/').slice(1)
-            window.location.href = 'keynotes' + path + `/${keynote}`
+            let url = `${kind}s` + path + `/${keynote}`
+            if (kind === 'gitbook') {
+              url += '/latest/'
+            }
+            window.location.href = url
+          },
+          fileIcon(kind) {
+            if (kind === 'keynote') {
+              return 'bi-file-earmark-slides'
+            } else if (kind === 'docsify') {
+              return 'bi-file-earmark-richtext'
+            } else if (kind === 'gitbook') {
+              return 'bi-file-earmark-text'
+            }
+          },
+          fileIconColor(kind) {
+            if (kind === 'keynote') {
+              return 'text-secondary'
+            } else if (kind === 'docsify') {
+              return 'text-success'
+            } else if (kind === 'gitbook') {
+              return 'text-info'
+            }
           }
         },
         created() {
@@ -166,7 +189,7 @@
               window.location.reload()
             })
         },
-        delimiters: ["{[{", "}]}"],
+        delimiters: ['{[{', '}]}'],
       }).mount('#app')
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
