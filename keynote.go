@@ -22,7 +22,7 @@ import (
 )
 
 type Site struct {
-	Logo, Link, Icon, Name, Title, Author, Desc, Summry, Copyright, Beian string
+	Logo, Link, Icon, Name, Title, Author, Desc, Summry, Copyright, Beian, BeianLink string
 }
 
 func loadSite(conf string) (site *Site) {
