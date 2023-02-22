@@ -22,7 +22,11 @@ import (
 )
 
 type Site struct {
-	Logo, Link, Icon, Name, Title, Author, Desc, Summry, Copyright, Beian, BeianLink string
+	Logo, Link, Icon,
+	Name, Title, Author,
+	Desc, Summry, Copyright,
+	Beian, BeianLink string
+	StaticPath []string
 }
 
 func loadSite(conf string) (site *Site) {
@@ -393,6 +397,12 @@ func startServer(port int, host, conf, keynotesDir string) {
 
 	for _, kind := range FileKinds() {
 		router.StaticFS(fmt.Sprintf("%ss", kind), gin.Dir(keynotesDir, false))
+	}
+
+	// Site.StaticPath is a server mode parameter, please restart server after modification.
+	site, _ := getData(ch)
+	for _, path := range site.StaticPath {
+		router.StaticFS(path, gin.Dir(keynotesDir, false))
 	}
 
 	router.GET("/", homeRender(ch))
