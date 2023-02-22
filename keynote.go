@@ -26,7 +26,7 @@ type Site struct {
 	Name, Title, Author,
 	Desc, Summry, Copyright,
 	Beian, BeianLink string
-	StaticPath []string
+	StaticPath, StaticFile []string
 }
 
 func loadSite(conf string) (site *Site) {
@@ -399,10 +399,14 @@ func startServer(port int, host, conf, keynotesDir string) {
 		router.StaticFS(fmt.Sprintf("%ss", kind), gin.Dir(keynotesDir, false))
 	}
 
-	// Site.StaticPath is a server mode parameter, please restart server after modification.
 	site, _ := getData(ch)
+	// Site.StaticPath is a server mode parameter, please restart server after modification.
 	for _, path := range site.StaticPath {
 		router.StaticFS(path, gin.Dir(keynotesDir, false))
+	}
+	// Site.StaticFile is a server mode parameter, please restart server after modification.
+	for _, file := range site.StaticFile {
+		router.StaticFile(file, file)
 	}
 
 	router.GET("/", homeRender(ch))
