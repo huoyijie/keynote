@@ -7,7 +7,7 @@ Keynote is a lightweight CMS (Content Management System) tool writing in Golang.
 [https://huoyijie.github.io](https://huoyijie.github.io) is my website built with Keynote.
 [Here](https://huoyijie.github.io/keynote) is a demo.
 
-![Keynote](/keynotes/images/keynote.png)
+![Keynote](docs/src/images/keynote.png)
 
 ## Prerequisites
 
