@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Keynote is a lightweight CMS (Content Management System) tool writing in Golang. It's based on Markdown and stands on top of [Gitbook](https://github.com/GitbookIO/gitbook), [Docsify](https://github.com/docsifyjs/docsify) and [Reveal.js](https://github.com/hakimel/reveal.js), and powered by Bootstrap and Vue. You can choose any of Gitbook/Docsify/Reveal.js to write docs or slides. If you like keynote, welcome to star or help.
+[Keynote](https://github.com/huoyijie/keynote) is a personal lightweight CMS (Content Management System) tool writing in Golang. It's based on Markdown and stands on top of [Gitbook](https://github.com/GitbookIO/gitbook), [Docsify](https://github.com/docsifyjs/docsify) and [Reveal.js](https://github.com/hakimel/reveal.js), and powered by Bootstrap and Vue. You can choose any of Gitbook/Docsify/Reveal.js to write docs or slides. If you like keynote, welcome to star or help.
 
 [https://huoyijie.github.io](https://huoyijie.github.io) is my website built with Keynote.
 [Here](https://huoyijie.github.io/keynote) is a demo.
