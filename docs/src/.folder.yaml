@@ -1,0 +1,7 @@
+keynote:
+  - 'what-is-keynote.md'
+gitbook:
+  - 'gitbook-about-keynote'
+docsify: []
+ignore:
+  - 'images'

@@ -1,0 +1,302 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Keynote · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter active" data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Keynote
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Keynote</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="keynote">Keynote</h1>
+<h2 id="introduction">Introduction</h2>
+<p>Keynote is a lightweight CMS (Content Management System) tool writing in Golang. It&apos;s based on Markdown and stands on top of <a href="https://github.com/GitbookIO/gitbook" target="_blank">Gitbook</a>, <a href="https://github.com/docsifyjs/docsify" target="_blank">Docsify</a> and <a href="https://github.com/hakimel/reveal.js" target="_blank">Reveal.js</a>, and powered by Bootstrap and Vue. You can choose any of Gitbook/Docsify/Reveal.js to write docs or slides. If you like keynote, welcome to star or help.</p>
+<p><a href="https://huoyijie.github.io" target="_blank">Here</a> is a demo built with Keynote.</p>
+<p><img src="../../images/keynote.png" alt="Keynote"></p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li><p>Go 1.20 &#x53CA;&#x4EE5;&#x4E0A;</p>
+</li>
+<li><p>Gitbook</p>
+</li>
+</ul>
+<pre><code class="lang-bash">$ gitbook -V
+CLI version: 2.3.2
+GitBook version: 3.2.3
+</code></pre>
+<ul>
+<li>Node.js v12.22.12</li>
+</ul>
+<p>Gitbook depends on Node, <code>gitbook init</code> reports error with recently released Node, you&apos;d better switch to Node v12.22.12 to build gitbook.</p>
+<h2 id="install">Install</h2>
+<pre><code class="lang-bash">$ git@github.com:huoyijie/keynote.git
+
+$ <span class="hljs-built_in">cd</span> keynote
+
+$ go install .
+</code></pre>
+<pre><code class="lang-bash">$ keynote -h
+Usage of keynote:
+  -base string
+        base path of the static site (default <span class="hljs-string">&quot;/&quot;</span>)
+  -conf string
+        the config of the site (default <span class="hljs-string">&quot;keynote.yaml&quot;</span>)
+  -gen
+        generate static site
+  -host string
+        the host that server listen on (default <span class="hljs-string">&quot;0.0.0.0&quot;</span>)
+  -output string
+        <span class="hljs-built_in">where</span> the generated files store (default <span class="hljs-string">&quot;.&quot;</span>)
+  -port int
+        the port that server listen on (default 8000)
+  -pro
+        production mode (without auto reload)
+  -src string
+        <span class="hljs-built_in">where</span> the keynote sources store (default <span class="hljs-string">&quot;src&quot;</span>)
+</code></pre>
+<h2 id="run-with-demo">Run with demo</h2>
+<pre><code class="lang-bash">$ <span class="hljs-built_in">cd</span> docs
+$ keynote -port 8000
+</code></pre>
+<p>You can open <code>http://127.0.0.1:8000</code>.</p>
+<h2 id="run-with-your-repo">Run with your repo</h2>
+<p>First, you can create a new repository with the name {your github id}.github.io, just like <a href="https://github.com/huoyijie/huoyijie.github.io" target="_blank">huoyijie.github.io</a>.</p>
+<p>Clone the repo and write something.</p>
+<pre><code class="lang-bash">$ <span class="hljs-built_in">cd</span> xxx.github.io
+$ ls <span class="hljs-_">-l</span>
+keynote.yaml
+src
+</code></pre>
+<p>keynote.yaml is the conf, and src is the folder you put your markdown files.</p>
+<p>In every folder under src, you must new a <code>.folder.yaml</code> file. You can open the example file and look at it.</p>
+<h3 id="run-a-server">Run a server</h3>
+<pre><code class="lang-bash">$ <span class="hljs-built_in">cd</span> xxx.github.com
+$ keynote -port 8000
+</code></pre>
+<p>You can open <code>http://127.0.0.1:8000</code>.</p>
+<h3 id="generate-static-site">Generate static site</h3>
+<pre><code>$ keynote -gen
+</code></pre><h2 id="about-gitbook">About gitbook</h2>
+<p>Gitbook will take a few more steps:</p>
+<pre><code class="lang-bash"><span class="hljs-built_in">cd</span> src
+$ gitbook init gitbook-about-keynote
+</code></pre>
+<p>edit src/.folder.yaml</p>
+<pre><code class="lang-yaml"><span class="hljs-attr">keynote:</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">&apos;what-is-keynote.md&apos;</span>
+<span class="hljs-attr">gitbook:</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">&apos;gitbook-about-keynote&apos;</span>
+<span class="hljs-attr">docsify:</span> []
+<span class="hljs-attr">ignore:</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">&apos;images&apos;</span>
+</code></pre>
+<pre><code class="lang-bash">$ <span class="hljs-built_in">cd</span> src/gitbook-about-keynote
+$ gitbook build ./ latest
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Keynote","level":"1.1","depth":1,"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"README.md","mtime":"2023-02-23T03:45:50.636Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2023-02-23T03:45:57.224Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

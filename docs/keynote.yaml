@@ -5,5 +5,5 @@ name: 'Keynote'
 title: 'SHOW YOU THE CODE'
 author: 'huoyijie'
 desc: 'SHOW YOU THE CODE'
-summry: '我在平时的开发过程中，总会遇到一些没见过的问题，就需要检索技术资料，然后逐渐理解和解决问题。把问题解决的过程和思路记录下来，后面再查阅时会方便一些，对后来的学习者也有些帮助。另外，我也会尝试记录一些我实践过的编程内容，不定期更新。如果你觉得有收获，欢迎随时收藏、推荐、交流和转载（请注明原始链接）。'
+summry: "Keynote is a lightweight CMS (Content Management System) tool writing in Golang. It's based on Markdown and stands on top of Gitbook, Docsify and Reveal.js, and powered by Bootstrap and Vue. You can choose any of Gitbook/Docsify/Reveal.js to write docs or slides. If you like keynote, welcome to star or help."
 copyright: 'huoyijie.cn'
