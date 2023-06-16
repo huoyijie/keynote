@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.8.2
+	github.com/gorilla/feeds v1.1.1
 	github.com/otiai10/copy v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )

@@ -14,9 +14,11 @@ import (
 	"sort"
 	"strings"
 	"syscall"
+	tt "text/template"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/feeds"
 	cp "github.com/otiai10/copy"
 	"gopkg.in/yaml.v3"
 )
@@ -115,6 +117,11 @@ type Folder struct {
 	SubFolders  []*Folder
 	Files       []*File
 	Copy        []string
+}
+
+type SitemapItem struct {
+	Link    string
+	LastMod time.Time
 }
 
 // Only support files with `.md` suffix or gitbook directories.
@@ -312,14 +319,44 @@ func newTemplate() (tmpl *template.Template) {
 	return
 }
 
-func genKeynoteHtml(kind FileKind, tmpl *template.Template, site *Site, folder *Folder, path, basePath string) {
-	// Process one kind of file at a time.
-	var filteredFiles []*File
+func newTextTemplate() (tmpl *tt.Template) {
+	tmpl = tt.Must(tt.New("").ParseFS(tmplFS, "templates/*.tmpl"))
+	return
+}
+
+func getKeynoteName(folder *Folder, file *File) string {
+	urlPath := strings.Join(folder.Breadcrumb[1:], "/")
+	keynoteName, _ := url.JoinPath(urlPath, file.Name)
+	return keynoteName
+}
+
+func getFilteredFiles(folder *Folder, kind FileKind) (filteredFiles []*File) {
 	for _, kn := range folder.Files {
 		if kn.Kind == kind {
 			filteredFiles = append(filteredFiles, kn)
 		}
 	}
+	return
+}
+
+func getItemLink(site *Site, basePath string, kind FileKind, folder *Folder, file *File) (itemLink string) {
+	itemLink, _ = url.JoinPath(
+		site.Link,
+		getKeynoteDir(basePath, kind),
+		getKeynoteName(folder, file),
+	)
+	if kind.IsGitbook() {
+		itemLink, _ = url.JoinPath(itemLink, "latest")
+	}
+	return
+}
+
+func getKeynoteDir(basePath string, kind FileKind) string {
+	return filepath.Join(basePath, fmt.Sprintf("%ss", kind))[1:]
+}
+
+func genKeynoteHtml(kind FileKind, tmpl *template.Template, site *Site, folder *Folder, path, basePath string, feed *feeds.Feed, items *[]SitemapItem) {
+	filteredFiles := getFilteredFiles(folder, kind)
 
 	if len(filteredFiles) > 0 || len(folder.SubFolders) > 0 {
 		os.Mkdir(path, os.ModePerm)
@@ -336,10 +373,9 @@ func genKeynoteHtml(kind FileKind, tmpl *template.Template, site *Site, folder *
 				knHtmlPath := filepath.Join(path, kn.Name+".html")
 				knHtml, _ := os.Create(knHtmlPath)
 
-				urlPath := strings.Join(folder.Breadcrumb[1:], "/")
-				keynoteName, _ := url.JoinPath(urlPath, kn.Name)
+				keynoteName := getKeynoteName(folder, kn)
 				tmpl.ExecuteTemplate(knHtml, fmt.Sprintf("%s.htm", kind), gin.H{
-					"KeynoteDir":   filepath.Join(basePath, fmt.Sprintf("%ss", kind))[1:],
+					"KeynoteDir":   getKeynoteDir(basePath, kind),
 					"KeynoteName":  keynoteName,
 					"KeynoteTitle": kn.Title,
 					"Site":         site,
@@ -351,10 +387,22 @@ func genKeynoteHtml(kind FileKind, tmpl *template.Template, site *Site, folder *
 				os.MkdirAll(gitbookDir, os.ModePerm)
 				fatalErr(cp.Copy(latestDir, gitbookDir))
 			}
+			href := getItemLink(site, basePath, kind, folder, kn)
+			feed.Items = append(feed.Items, &feeds.Item{
+				Title:       kn.Title,
+				Description: kn.Title,
+				Author:      &feeds.Author{Name: site.Author},
+				Created:     kn.Ctime,
+				Link:        &feeds.Link{Href: href},
+			})
+			*items = append(*items, SitemapItem{
+				Link:    href,
+				LastMod: kn.Ctime,
+			})
 		}
 
 		for _, f := range folder.SubFolders {
-			genKeynoteHtml(kind, tmpl, site, f, filepath.Join(path, f.Name), basePath)
+			genKeynoteHtml(kind, tmpl, site, f, filepath.Join(path, f.Name), basePath, feed, items)
 		}
 
 		// copy list
@@ -374,6 +422,7 @@ func genStaticSite(conf, keynotesDir, outputDir, basePath string) {
 	}
 
 	tmpl := newTemplate()
+	ttmpl := newTextTemplate()
 	// load data
 	site := loadSite(conf)
 	rootFolder := loadKeynotes(keynotesDir, "/", []string{"/"})
@@ -397,14 +446,37 @@ func genStaticSite(conf, keynotesDir, outputDir, basePath string) {
 		fatalErr(os.WriteFile(foldersJsonPath, data, os.ModePerm))
 	}
 
+	feed := &feeds.Feed{
+		Title:       fmt.Sprintf("%s(%s)", site.Title, site.Copyright),
+		Link:        &feeds.Link{Href: site.Link},
+		Description: site.Summry,
+		Author:      &feeds.Author{Name: site.Author},
+		Created:     time.Now(),
+		Copyright:   fmt.Sprintf("© %s", site.Copyright),
+	}
+
+	var items []SitemapItem
+
 	// generate keynotes
 	for _, kind := range FileKinds() {
 		// clear old keynotes
 		keynotesPath := filepath.Join(outputDir, fmt.Sprintf("%ss", kind))
 		os.RemoveAll(keynotesPath)
 		// re-generate keynotes
-		genKeynoteHtml(kind, tmpl, site, rootFolder, keynotesPath, basePath)
+		genKeynoteHtml(kind, tmpl, site, rootFolder, keynotesPath, basePath, feed, &items)
 	}
+
+	// generate rss
+	rssPath := filepath.Join(outputDir, "rss")
+	os.Remove(rssPath)
+	atom, _ := feed.ToRss()
+	fatalErr(os.WriteFile(rssPath, []byte(atom), os.ModePerm))
+
+	// generate sitemap
+	sitemapPath := filepath.Join(outputDir, "sitemap")
+	os.Remove(sitemapPath)
+	sitemap, _ := os.Create(sitemapPath)
+	ttmpl.ExecuteTemplate(sitemap, "sitemap.tmpl", gin.H{"Site": site, "LastMod": time.Now(), "Items": items})
 }
 
 func startServer(port int, host, conf, keynotesDir string) {

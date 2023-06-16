@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset>
+    <url>
+        <loc>{{.Site.Link}}</loc>
+        <changefreq>always</changefreq>
+        <lastmod>{{.LastMod}}</lastmod>
+        <priority>1</priority>
+    </url>
+    {{range .Items}}
+    <url>
+        <loc>{{.Link}}</loc>
+        <changefreq>daily</changefreq>
+        <lastmod>{{.LastMod}}</lastmod>
+        <priority>1.0</priority>
+    </url>
+    {{end}}
+</urlset>
