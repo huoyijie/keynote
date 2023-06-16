@@ -64,7 +64,7 @@ func FileKinds() []FileKind {
 }
 
 type FolderProps struct {
-	Keynote, Docsify, Gitbook, Ignore []string
+	Keynote, Docsify, Gitbook, Ignore, Copy []string
 }
 
 func (props *FolderProps) getFileKind(file string) (fileKind FileKind, found bool) {
@@ -114,6 +114,7 @@ type Folder struct {
 	Breadcrumb  []string
 	SubFolders  []*Folder
 	Files       []*File
+	Copy        []string
 }
 
 // Only support files with `.md` suffix or gitbook directories.
@@ -139,6 +140,14 @@ outer:
 		// ignore hidden file or directory
 		if strings.HasPrefix(v.Name(), ".") {
 			continue
+		}
+
+		// check copy list
+		for _, copy := range folderProps.Copy {
+			if v.Name() == copy {
+				folder.Copy = append(folder.Copy, copy)
+				continue outer
+			}
 		}
 
 		fileKind, ok := folderProps.getFileKind(v.Name())
@@ -304,43 +313,54 @@ func newTemplate() (tmpl *template.Template) {
 }
 
 func genKeynoteHtml(kind FileKind, tmpl *template.Template, site *Site, folder *Folder, path, basePath string) {
-	os.Mkdir(path, os.ModePerm)
-
+	// Process one kind of file at a time.
+	var filteredFiles []*File
 	for _, kn := range folder.Files {
-		// Process one kind of file at a time.
-		if kn.Kind != kind {
-			continue
-		}
-		if kind.IsKeynote() || kind.IsDocsify() {
-			// copy original `.md` files for keynote and docsify
-			mdFile := kn.Name + ".md"
-			data, _ := os.ReadFile(filepath.Join(folder.path, mdFile))
-			mdPath := filepath.Join(path, mdFile)
-			os.WriteFile(mdPath, data, os.ModePerm)
-
-			// generate `.html` file
-			knHtmlPath := filepath.Join(path, kn.Name+".html")
-			knHtml, _ := os.Create(knHtmlPath)
-
-			urlPath := strings.Join(folder.Breadcrumb[1:], "/")
-			keynoteName, _ := url.JoinPath(urlPath, kn.Name)
-			tmpl.ExecuteTemplate(knHtml, fmt.Sprintf("%s.htm", kind), gin.H{
-				"KeynoteDir":   filepath.Join(basePath, fmt.Sprintf("%ss", kind))[1:],
-				"KeynoteName":  keynoteName,
-				"KeynoteTitle": kn.Title,
-				"Site":         site,
-			})
-		} else if kind.IsGitbook() {
-			// copy latest dir for gitbook
-			latestDir := filepath.Join(folder.path, kn.Name, "latest")
-			gitbookDir := filepath.Join(path, kn.Name, "latest")
-			os.MkdirAll(gitbookDir, os.ModePerm)
-			fatalErr(cp.Copy(latestDir, gitbookDir))
+		if kn.Kind == kind {
+			filteredFiles = append(filteredFiles, kn)
 		}
 	}
 
-	for _, f := range folder.SubFolders {
-		genKeynoteHtml(kind, tmpl, site, f, filepath.Join(path, f.Name), basePath)
+	if len(filteredFiles) > 0 || len(folder.SubFolders) > 0 {
+		os.Mkdir(path, os.ModePerm)
+
+		for _, kn := range filteredFiles {
+			if kind.IsKeynote() || kind.IsDocsify() {
+				// copy original `.md` files for keynote and docsify
+				mdFile := kn.Name + ".md"
+				data, _ := os.ReadFile(filepath.Join(folder.path, mdFile))
+				mdPath := filepath.Join(path, mdFile)
+				os.WriteFile(mdPath, data, os.ModePerm)
+
+				// generate `.html` file
+				knHtmlPath := filepath.Join(path, kn.Name+".html")
+				knHtml, _ := os.Create(knHtmlPath)
+
+				urlPath := strings.Join(folder.Breadcrumb[1:], "/")
+				keynoteName, _ := url.JoinPath(urlPath, kn.Name)
+				tmpl.ExecuteTemplate(knHtml, fmt.Sprintf("%s.htm", kind), gin.H{
+					"KeynoteDir":   filepath.Join(basePath, fmt.Sprintf("%ss", kind))[1:],
+					"KeynoteName":  keynoteName,
+					"KeynoteTitle": kn.Title,
+					"Site":         site,
+				})
+			} else if kind.IsGitbook() {
+				// copy latest dir for gitbook
+				latestDir := filepath.Join(folder.path, kn.Name, "latest")
+				gitbookDir := filepath.Join(path, kn.Name, "latest")
+				os.MkdirAll(gitbookDir, os.ModePerm)
+				fatalErr(cp.Copy(latestDir, gitbookDir))
+			}
+		}
+
+		for _, f := range folder.SubFolders {
+			genKeynoteHtml(kind, tmpl, site, f, filepath.Join(path, f.Name), basePath)
+		}
+
+		// copy list
+		for _, copy := range folder.Copy {
+			fatalErr(cp.Copy(filepath.Join(folder.path, copy), filepath.Join(path, copy)))
+		}
 	}
 }
 

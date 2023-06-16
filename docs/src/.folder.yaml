@@ -3,5 +3,6 @@ keynote:
 gitbook:
   - 'gitbook-about-keynote'
 docsify: []
-ignore:
+ignore: []
+copy:
   - 'images'
