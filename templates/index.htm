@@ -58,13 +58,18 @@
         </div>
 
         <div class="container fixed-bottom">
-          <footer class="d-flex flex-wrap justify-content-between align-items-center border-top py-1 text-muted">
-            <div class="col-md-4">
+          <footer class="d-flex flex-wrap justify-content-between align-items-center border-top py-2 text-muted">
+            <div>
               <span>&copy; {{.Year}} {{.Site.Copyright}} {{if ne .Site.Beian ""}} <a href="{{.Site.BeianLink}}" target="_blank" class="text-muted text-decoration-none">{{.Site.Beian}}</a> {{end}}</span>
             </div>
 
-            <div class="col-md-5">
-              <span>Powered by Bootstrap, Vue, Reveal.js, Gitbook, Docsify, Gin, <a href="https://github.com/huoyijie/keynote" target="_blank">Keynote</a></span>
+            <div>
+               <a href="https://github.com/huoyijie" target="_blank" class="text-decoration-none"><i class="bi bi-github"></i></a>
+               <a href="https://www.zhihu.com/people/huoyijie" target="_blank" class="ms-3 text-decoration-none">知乎</a>
+            </div>
+
+            <div>
+              <span>Powered by <a href="https://github.com/huoyijie/keynote" target="_blank" class="text-decoration-none">Keynote</a></span>
             </div>
           </footer>
         </div>
