@@ -446,6 +446,10 @@ func genStaticSite(conf, keynotesDir, outputDir, basePath string) {
 		fatalErr(os.WriteFile(foldersJsonPath, data, os.ModePerm))
 	}
 
+	adsPath := filepath.Join(outputDir, "ads.txt")
+	os.Remove(adsPath)
+	fatalErr(os.WriteFile(adsPath, []byte("google.com, pub-3208596842265965, DIRECT, f08c47fec0942fa0"), os.ModePerm))
+
 	feed := &feeds.Feed{
 		Title:       fmt.Sprintf("%s(%s)", site.Title, site.Copyright),
 		Link:        &feeds.Link{Href: site.Link},
@@ -503,6 +507,9 @@ func startServer(port int, host, conf, keynotesDir string) {
 
 	router.GET("/", homeRender(ch))
 	router.GET("/folders.json", foldersApi(ch))
+	router.GET("/ads.txt", func(c *gin.Context) {
+		c.String(http.StatusOK, "google.com, pub-3208596842265965, DIRECT, f08c47fec0942fa0")
+	})
 	router.NoRoute(noRouteHandler(ch))
 
 	router.SetTrustedProxies(nil)
