@@ -21,9 +21,7 @@ CLI version: 2.3.2
 GitBook version: 3.2.3
 ```
 
-* Node.js v12.22.12
-
-Gitbook depends on Node, `gitbook init` reports error with recently released Node, you'd better switch to Node v12.22.12 to build gitbook.
+* Node.js v20.10.0
 
 ## Install
 
